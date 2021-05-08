@@ -1,0 +1,21 @@
+# Managed by Ansible
+version: '2'
+services:
+  syntropy-agent:
+    image: syntropynet/agent:stable
+    container_name: syntropy-agent
+    environment:
+      - SYNTROPY_API_KEY=Ur8NWMYJwG3vZn9Og1XyBxoJzf04FXTQ
+      - SYNTROPY_NETWORK_API=host
+      - SYNTROPY_ALLOWED_IPS=[{"0.0.0.0/0":"internet"}]
+      - SYNTROPY_SERVICES_STATUS=true
+      - SYNTROPY_PORT_RANGE=51825-51830
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+    network_mode: host

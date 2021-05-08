@@ -1,0 +1,39 @@
+---
+  - hosts: all
+    tasks:
+    - name: Install wireguard
+      ansible.builtin.apt:
+        update_cache: yes
+        name: wireguard
+        state: latest
+
+    - name: Ensure wireguard module loads first
+      shell: modprobe wireguard && echo wireguard >> /etc/modules-load.d/wireguard.conf
+
+    - name: install ufw
+      apt:
+        name: ufw
+        state: latest  
+
+    - name: Allow VPN ports
+      ufw:
+        rule: allow
+        direction: in
+        port: '51825,51826,51827,51828,51829,51830'
+        proto: udp
+
+    - name: Copy syntropy-agent compose file over
+      ansible.builtin.template:
+        src: "syntropy-agent.yml"
+        dest: "~/syntropy-agent-yml"
+        owner: "root"
+        group: "root"
+        mode: 0600
+        
+    - name: Pull new syntropy-agent image and start it
+      shell: "docker-compose -f syntropy-agent.yml pull && docker-compose -f syntropy-agent.yml up -d"
+      register: shell_output
+
+    - name: Result of syntropy-agent compose
+      debug:
+        var: shell_output.stderr_lines
