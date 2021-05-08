@@ -1,0 +1,43 @@
+---
+    - name: Allow SSH
+      community.general.ufw:
+        rule: allow
+        direction: in
+        port: '22'
+        proto: tcp
+
+    - name: Ensure ufw is enabled
+      community.general.ufw:
+        state: enabled
+
+    - name: Block input by default
+      community.general.ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Install fail2ban
+      ansible.builtin.apt:
+        update_cache: yes
+        name: fail2ban
+        state: latest
+
+    - name: Ensure fail2ban is started and enabled
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: Copy over fail2ban config
+      ansible.builtin.copy:
+         src: "../files/jail.local"
+         dest: "/etc/fail2ban/jail.local"
+         owner: "root"
+         group: "root"
+         mode: 0644
+      register: fail2banconf
+
+    - name: Restart fail2ban if config is updated
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+      when: fail2banconf.changed
