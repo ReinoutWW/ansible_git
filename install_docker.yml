@@ -24,3 +24,10 @@
         update_cache: yes
         name: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose']
         state: latest
+
+    - name: Update apt and install docker
+      ansible.builtin.apt:
+        update_cache: yes
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose']
+        state: latest
+
